@@ -9,6 +9,8 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -37,7 +39,7 @@ class _MyAppState extends State<MyApp> {
 class MainPage extends StatefulWidget {
   final Function(bool) onThemeToggle;
 
-  const MainPage({required this.onThemeToggle});
+  const MainPage({super.key, required this.onThemeToggle});
 
   @override
   State<MainPage> createState() => _MainPageState();

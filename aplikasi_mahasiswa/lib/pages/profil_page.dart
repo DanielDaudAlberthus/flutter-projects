@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ProfilPage extends StatefulWidget {
   final Function(bool) onThemeToggle;
 
-  const ProfilPage({required this.onThemeToggle});
+  const ProfilPage({super.key, required this.onThemeToggle});
 
   @override
   State<ProfilPage> createState() => _ProfilPageState();

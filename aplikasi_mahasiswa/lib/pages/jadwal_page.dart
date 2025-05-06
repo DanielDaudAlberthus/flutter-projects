@@ -15,7 +15,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "08:00-10:30",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14569001",
@@ -25,7 +24,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "10:30-13:00",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14568001",
@@ -35,7 +33,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "11:20-13:50",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14564015",
@@ -45,7 +42,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "13:50-16:20",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14565001",
@@ -55,7 +51,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "09:40-12:10",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14569005",
@@ -65,7 +60,6 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "10:30-13:00",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
     {
       "kode": "14567001",
@@ -75,88 +69,160 @@ class _JadwalPageState extends State<JadwalPage> {
       "jam": "08:00-09:40",
       "ruang": "A",
       "kelas": "A",
-      "dosen": "-",
     },
   ];
 
-  String _searchQuery = "";
+  final List<String> _days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+  int _currentDayIndex = 0;
+
+  void _nextDay() {
+    setState(() {
+      _currentDayIndex = (_currentDayIndex + 1) % _days.length;
+    });
+  }
+
+  void _prevDay() {
+    setState(() {
+      _currentDayIndex = (_currentDayIndex - 1 + _days.length) % _days.length;
+    });
+  }
+
+  Icon _getIcon(String matkul) {
+    if (matkul.toLowerCase().contains("prak")) {
+      return Icon(Icons.settings, color: Colors.orange);
+    } else {
+      return Icon(Icons.book, color: Colors.blue);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, String>> filteredJadwal =
-        _jadwal.where((item) {
-          return item['matkul']!.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          );
-        }).toList();
-
-    int totalSKS = filteredJadwal.fold(
+    String selectedDay = _days[_currentDayIndex];
+    List<Map<String, String>> filtered =
+        _jadwal.where((item) => item['hari'] == selectedDay).toList();
+    int totalSks = filtered.fold(
       0,
-      (sum, item) => sum + int.parse(item['sks'] ?? '0'),
+      (sum, item) => sum + int.parse(item['sks']!),
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          // Search Field
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Cari Mata Kuliah',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-            ),
-          ),
-          // Table Header
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text("No")),
-                DataColumn(label: Text("Kode MK")),
-                DataColumn(label: Text("Matakuliah")),
-                DataColumn(label: Text("SKS")),
-                DataColumn(label: Text("Hari")),
-                DataColumn(label: Text("Jam")),
-                DataColumn(label: Text("Ruang")),
-                DataColumn(label: Text("Kelas")),
-                DataColumn(label: Text("Dosen")),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // implement refresh/export PDF
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Fitur Export PDF coming soon...")),
+          );
+        },
+        icon: Icon(Icons.picture_as_pdf),
+        label: Text("Export PDF"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(onPressed: _prevDay, icon: Icon(Icons.chevron_left)),
+                DropdownButton<String>(
+                  value: selectedDay,
+                  items:
+                      _days.map((day) {
+                        return DropdownMenuItem(
+                          value: day,
+                          child: Text(
+                            day,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      _currentDayIndex = _days.indexOf(val!);
+                    });
+                  },
+                ),
+                IconButton(
+                  onPressed: _nextDay,
+                  icon: Icon(Icons.chevron_right),
+                ),
               ],
-              rows: List.generate(filteredJadwal.length, (index) {
-                final item = filteredJadwal[index];
-                return DataRow(
-                  cells: [
-                    DataCell(Text((index + 1).toString())),
-                    DataCell(Text(item['kode']!)),
-                    DataCell(Text(item['matkul']!)),
-                    DataCell(Text(item['sks']!)),
-                    DataCell(Text(item['hari']!)),
-                    DataCell(Text(item['jam']!)),
-                    DataCell(Text(item['ruang']!)),
-                    DataCell(Text(item['kelas']!)),
-                    DataCell(Text(item['dosen']!)),
-                  ],
-                );
-              }),
             ),
-          ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              "Total SKS: $totalSKS",
+
+            SizedBox(height: 8),
+            Text(
+              "Total SKS hari ini: $totalSks",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+
+            SizedBox(height: 10),
+
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child:
+                    filtered.isEmpty
+                        ? Center(
+                          child: Text('Tidak ada jadwal untuk hari ini.'),
+                        )
+                        : ListView.builder(
+                          key: ValueKey<String>(selectedDay),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final item = filtered[index];
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              padding: EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  _getIcon(item['matkul']!),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['matkul']!,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          "Jam: ${item['jam']} | SKS: ${item['sks']}",
+                                        ),
+                                        Text(
+                                          "Kode: ${item['kode']} | Kelas: ${item['kelas']}",
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
