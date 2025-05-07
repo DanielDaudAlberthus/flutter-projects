@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       home: MainPage(onThemeToggle: _toggleTheme),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
