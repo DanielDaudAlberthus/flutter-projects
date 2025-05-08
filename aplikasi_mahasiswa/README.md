@@ -33,3 +33,5 @@ Gambar-gambar di atas menunjukkan tampilan responsif aplikasi di mode mobile dan
 1. Flutter
 2. Dart
 3. flutter_adaptive_scaffold (untuk layout adaptif)
+
+LINK YOUTUBE : https://youtu.be/16fU4xcWzis?si=SxDTMcVnbKSTd52L
